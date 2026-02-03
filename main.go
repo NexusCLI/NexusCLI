@@ -1,26 +1,35 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"nexus-cli/utils"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
-	username string
-	keyPath  string
+	username    string
+	keyPath     string
+	historyFile = filepath.Join(os.TempDir(), ".nexus_history")
 )
 
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "Nexus-cli",
-		Short: "Nexus CLI: A stateless, encrypted git-based vault",
-		Long: `Nexus is a secure, git-backed vault that uses client-side encryption.
-It supports both a persistent session (connect) or a stateless mode (-u flag).
-Use 'nexus-cli help [command]' to view alias options for each command.`,
+		Short: "Nexus CLI",
+		// This bit ensures the root command doesn't just print help
+		// if we want to trigger the REPL instead.
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				runInteractiveShell(cmd)
+			}
+		},
 	}
 
 	// Persistent flag allows -u to be used across all subcommands
@@ -262,7 +271,99 @@ Use 'nexus-cli help [command]' to view alias options for each command.`,
 		listCmd, searchCmd, purgeCmd,
 	)
 
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+	// Check if we should enter REPL or just execute once
+	if len(os.Args) > 1 {
+		if err := rootCmd.Execute(); err != nil {
+			os.Exit(1)
+		}
+	} else {
+		runInteractiveShell(rootCmd)
+	}
+}
+
+func resetTerminal() {
+	fd := int(os.Stdin.Fd())
+	if term.IsTerminal(fd) {
+		// Get the current state
+		state, err := term.GetState(fd)
+		if err == nil {
+			// Force the terminal to restore to a clean, "echo-on" state
+			term.Restore(fd, state)
+		}
+	}
+}
+
+func runInteractiveShell(rootCmd *cobra.Command) {
+	resetTerminal()
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("=== Nexus Interactive Shell ===")
+
+	var cachedSession *utils.Session
+	var err error
+
+	// 1. Authentication Loop
+	for {
+		if username == "" {
+			fmt.Print("Username: ")
+			os.Stdout.Sync()
+			un, _ := reader.ReadString('\n')
+			username = strings.TrimSpace(un)
+		}
+
+		pass, getPassErr := utils.GetPassword("Password: ")
+		if getPassErr != nil {
+			fmt.Printf("Error reading password: %v\n", getPassErr)
+			return
+		}
+
+		fmt.Println("Authenticating...")
+		cachedSession, err = utils.FetchSessionStateless(username, pass)
+
+		if err != nil {
+			// Check if it's an auth failure or a network/not-found issue
+			fmt.Printf("❌ Login failed: %v\n", err)
+
+			// Reset username if you want them to be able to change it on retry
+			// Otherwise, leave it so they only have to re-type the password
+			fmt.Println("Please try again.")
+			fmt.Println("-----------------------")
+			continue
+		}
+
+		// If we reach here, login was successful
+		break
+	}
+
+	// 2. Set the global cache and start the REPL
+	utils.SetGlobalSession(cachedSession)
+	fmt.Printf("✔ Welcome, %s. Session Active.\n", username)
+	fmt.Println("Type 'help' for commands or 'exit' to quit.")
+
+	for {
+		fmt.Print("nexus> ")
+		os.Stdout.Sync()
+
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		input = strings.TrimSpace(input)
+		if input == "" {
+			continue
+		}
+		if input == "exit" || input == "quit" || input == "logout" || input == "disc" || input == "dc" || input == "signout" || input == "logoff" || input == "disconnect" {
+			break
+		}
+
+		// Handle commands
+		args := strings.Fields(input)
+		rootCmd.SetArgs(args)
+
+		// We capture the error here so a failed command doesn't kill the shell
+		if cmdErr := rootCmd.Execute(); cmdErr != nil {
+			// Cobra usually prints the error itself, but this is a safety net
+		}
 	}
 }
