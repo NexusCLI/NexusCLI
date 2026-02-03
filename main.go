@@ -3,68 +3,155 @@ package main
 import (
 	"fmt"
 	"log"
+	"nexus-cli/utils"
 	"os"
 
-	"nexus-cli/utils"
+	"github.com/spf13/cobra"
 )
 
-const (
-	username = "Auchrio"
-	repoURL  = "git@github.com:Auchrio/.nexus.git"
-	keyPath  = ".config/key"
+var (
+	password string
+	username string
+	keyPath  string
+	repoURL  string
 )
 
 func main() {
-	// 1. Credentials
-	fmt.Print("Enter Vault Password: ")
-	var password string
-	fmt.Scanln(&password)
+	var rootCmd = &cobra.Command{Use: "nexus"}
 
-	rawKey, err := os.ReadFile(keyPath)
-	if err != nil {
-		log.Fatalf("Failed to read SSH key: %v", err)
+	// --- SETUP COMMAND ---
+	var setupCmd = &cobra.Command{
+		Use:   "setup",
+		Short: "Initialize the vault and encrypt your master key",
+		Run: func(cmd *cobra.Command, args []string) {
+			err := utils.SetupVault(username, keyPath, "")
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Setup complete.")
+		},
+	}
+	setupCmd.Flags().StringVarP(&username, "user", "u", "", "GitHub username")
+	setupCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to local private key")
+
+	// --- CONNECT COMMAND ---
+	var connectCmd = &cobra.Command{
+		Use:   "connect",
+		Short: "Establish a local session (nexus.conf)",
+		Run: func(cmd *cobra.Command, args []string) {
+			if username == "" {
+				fmt.Print("Enter GitHub Username: ")
+				fmt.Scanln(&username)
+			}
+			fmt.Print("Enter Vault Password: ")
+			fmt.Scanln(&password)
+
+			err := utils.Connect(username, password)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	connectCmd.Flags().StringVarP(&username, "user", "u", "", "GitHub username")
+
+	// --- DISCONNECT COMMAND ---
+	var disconnectCmd = &cobra.Command{
+		Use:   "disconnect",
+		Short: "Clear the local session",
+		Run: func(cmd *cobra.Command, args []string) {
+			utils.Disconnect()
+		},
 	}
 
-	// --- TEST STEP 1: PURGE ---
-	fmt.Println("\n[TEST 1] Purging vault...")
-	err = utils.PurgeVault(rawKey, repoURL)
-	if err != nil {
-		log.Fatalf("Purge failed: %v", err)
+	// --- UPLOAD COMMAND ---
+	var uploadCmd = &cobra.Command{
+		Use:   "upload [local-path] [vault-path]",
+		Short: "Upload or overwrite a file in the vault",
+		Args:  cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
+			err = utils.UploadFile(args[0], args[1], session.Password, session.RawKey, session.Username, rURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Upload successful.")
+		},
 	}
 
-	// --- TEST STEP 2: TRIPLE UPLOAD ---
-	fmt.Println("\n[TEST 2] Uploading test1, test2, and test3...")
-	testFiles := []string{"test1.txt", "test2.txt", "test3.txt"}
-	for _, vPath := range testFiles {
-		// We use "test.txt" as the local source for all three
-		err = utils.UploadFile("test.txt", vPath, password, rawKey, username, repoURL)
-		if err != nil {
-			log.Fatalf("Upload of %s failed: %v", vPath, err)
-		}
+	// --- DELETE COMMAND ---
+	var deleteCmd = &cobra.Command{
+		Use:   "delete [vault-path]",
+		Short: "Surgically remove a file from the vault",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
+			err = utils.DeleteFile(args[0], session.Password, session.RawKey, session.Username, rURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Deletion successful.")
+		},
 	}
 
-	// --- TEST STEP 3: DELETE TEST1 ---
-	fmt.Println("\n[TEST 3] Deleting test1.txt...")
-	err = utils.DeleteFile("test1.txt", password, rawKey, username, repoURL)
-	if err != nil {
-		log.Fatalf("Delete failed: %v", err)
+	// --- PURGE COMMAND ---
+	var purgeCmd = &cobra.Command{
+		Use:   "purge",
+		Short: "Wipe the entire vault and history",
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Print("⚠️  ARE YOU SURE? This wipes everything. (y/N): ")
+			var confirm string
+			fmt.Scanln(&confirm)
+			if confirm != "y" {
+				fmt.Println("Purge cancelled.")
+				return
+			}
+
+			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
+			err = utils.PurgeVault(session.RawKey, rURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Vault purged.")
+		},
 	}
 
-	// --- TEST STEP 4: OVERWRITE TEST2 ---
-	// Note: To truly test the overwrite, ensure 'test.txt' has different content
-	// or create a temp file here.
-	fmt.Println("\n[TEST 4] Overwriting test2.txt...")
-	err = utils.UploadFile("test.txt", "test2.txt", password, rawKey, username, repoURL)
-	if err != nil {
-		log.Fatalf("Overwrite failed: %v", err)
+	// --- LIST COMMAND ---
+	var listCmd = &cobra.Command{
+		Use:     "ls",
+		Aliases: []string{"list", "index"},
+		Short:   "List all files currently stored in the vault",
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			err = utils.ListFiles(session.Username, session.Password)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
 	}
 
-	fmt.Println("\n--------------------------------------------------")
-	fmt.Println("✔ ALL TESTS COMPLETE")
-	fmt.Println("Expected Result on GitHub:")
-	fmt.Println("1. '.config/index' exists")
-	fmt.Println("2. Two hex-named files exist (for test2 and test3)")
-	fmt.Println("3. Hex file for test1 is GONE")
-	fmt.Println("4. History shows multiple commits")
-	fmt.Println("--------------------------------------------------")
+	// Register commands
+	rootCmd.AddCommand(setupCmd, connectCmd, disconnectCmd, uploadCmd, deleteCmd, purgeCmd, listCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
