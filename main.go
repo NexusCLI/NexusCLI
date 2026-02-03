@@ -10,55 +10,66 @@ import (
 )
 
 var (
-	password string
 	username string
 	keyPath  string
-	repoURL  string
 )
 
 func main() {
-	var rootCmd = &cobra.Command{Use: "nexus"}
+	var rootCmd = &cobra.Command{
+		Use:   "nexus",
+		Short: "Nexus CLI: A stateless, encrypted git-based vault",
+	}
 
-	// --- SETUP COMMAND ---
+	// --- SETUP ---
+	// Supports: nexus setup [user] [key] OR nexus setup -u [user] -k [key]
 	var setupCmd = &cobra.Command{
-		Use:   "setup",
+		Use:   "setup [username] [key-path]",
 		Short: "Initialize the vault and encrypt your master key",
+		Args:  cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			err := utils.SetupVault(username, keyPath, "")
+			// Override flags if positional arguments are provided
+			if len(args) > 0 {
+				username = args[0]
+			}
+			if len(args) > 1 {
+				keyPath = args[1]
+			}
+
+			pass, _ := utils.GetPassword("Create a Vault Password: ")
+			err := utils.SetupVault(username, keyPath, pass)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Setup complete.")
+			fmt.Println("✔ Setup complete.")
 		},
 	}
 	setupCmd.Flags().StringVarP(&username, "user", "u", "", "GitHub username")
 	setupCmd.Flags().StringVarP(&keyPath, "key", "k", "", "Path to local private key")
 
-	// --- CONNECT COMMAND ---
+	// --- CONNECT ---
+	// Supports: nexus connect [username]
 	var connectCmd = &cobra.Command{
-		Use:   "connect",
-		Short: "Establish a local session (nexus.conf)",
+		Use:   "connect [username]",
+		Short: "Login and sync the remote index to your local session",
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			if username == "" {
+			targetUser := ""
+			if len(args) > 0 {
+				targetUser = args[0]
+			} else {
 				fmt.Print("Enter GitHub Username: ")
-				fmt.Scanln(&username)
+				fmt.Scanln(&targetUser)
 			}
 
-			// Use the new masked input function
-			pass, err := utils.GetPassword("Enter Vault Password: ")
-			if err != nil {
-				log.Fatal("Could not read password")
-			}
-			password = pass
-
-			err = utils.Connect(username, password)
+			pass, _ := utils.GetPassword("Enter Vault Password: ")
+			err := utils.Connect(targetUser, pass)
 			if err != nil {
 				log.Fatal(err)
 			}
 		},
 	}
 
-	// --- DISCONNECT COMMAND ---
+	// --- DISCONNECT ---
 	var disconnectCmd = &cobra.Command{
 		Use:   "disconnect",
 		Short: "Clear the local session",
@@ -67,111 +78,118 @@ func main() {
 		},
 	}
 
-	// --- UPLOAD COMMAND ---
+	// --- UPLOAD ---
 	var uploadCmd = &cobra.Command{
 		Use:   "upload [local-path] [vault-path]",
-		Short: "Upload or overwrite a file in the vault",
+		Short: "Upload a file to the vault",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			session, err := utils.GetSession()
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
-			err = utils.UploadFile(args[0], args[1], session.Password, session.RawKey, session.Username, rURL)
+			err = utils.UploadFile(args[0], args[1], session)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Upload successful.")
+			fmt.Println("✔ Upload successful.")
 		},
 	}
 
-	// --- DELETE COMMAND ---
+	// --- DOWNLOAD ---
+	var downloadCmd = &cobra.Command{
+		Use:   "download [vault-path] [local-output-path]",
+		Short: "Download a file from the vault",
+		Args:  cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = utils.DownloadFile(args[0], args[1], session)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("✔ Download successful.")
+		},
+	}
+
+	// --- DELETE ---
 	var deleteCmd = &cobra.Command{
 		Use:   "delete [vault-path]",
-		Short: "Surgically remove a file from the vault",
+		Short: "Remove a file from the vault",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			session, err := utils.GetSession()
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
-			err = utils.DeleteFile(args[0], session.Password, session.RawKey, session.Username, rURL)
+			err = utils.DeleteFile(args[0], session)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Deletion successful.")
+			fmt.Println("✔ File deleted.")
 		},
 	}
 
-	// --- PURGE COMMAND ---
-	var purgeCmd = &cobra.Command{
-		Use:   "purge",
-		Short: "Wipe the entire vault and history",
+	// --- LIST ---
+	var listCmd = &cobra.Command{
+		Use:     "ls",
+		Aliases: []string{"list"},
+		Short:   "List all files in the vault",
 		Run: func(cmd *cobra.Command, args []string) {
 			session, err := utils.GetSession()
 			if err != nil {
 				log.Fatal(err)
 			}
+			err = utils.ListFiles(session)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
 
-			fmt.Print("⚠️  ARE YOU SURE? This wipes everything. (y/N): ")
+	// --- SEARCH ---
+	var searchCmd = &cobra.Command{
+		Use:   "search [query]",
+		Short: "Search for files in the vault index",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = utils.SearchFiles(session, args[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+
+	// --- PURGE ---
+	var purgeCmd = &cobra.Command{
+		Use:   "purge",
+		Short: "Hard-reset the remote repository",
+		Run: func(cmd *cobra.Command, args []string) {
+			session, err := utils.GetSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print("⚠️  Confirm PURGE? (y/N): ")
 			var confirm string
 			fmt.Scanln(&confirm)
 			if confirm != "y" {
-				fmt.Println("Purge cancelled.")
 				return
 			}
-
-			rURL := fmt.Sprintf("git@github.com:%s/.nexus.git", session.Username)
-			err = utils.PurgeVault(session.RawKey, rURL)
+			err = utils.PurgeVault(session)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Vault purged.")
+			fmt.Println("✔ Vault purged.")
 		},
 	}
 
-	// --- LIST COMMAND ---
-	var listCmd = &cobra.Command{
-		Use:     "ls",
-		Aliases: []string{"list", "index"},
-		Short:   "List all files currently stored in the vault",
-		Run: func(cmd *cobra.Command, args []string) {
-			session, err := utils.GetSession()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			err = utils.ListFiles(session.Username, session.Password)
-			if err != nil {
-				log.Fatal(err)
-			}
-		},
-	}
-
-	// --- SEARCH COMMAND ---
-	var searchCmd = &cobra.Command{
-		Use:   "search [query]",
-		Short: "Search for files by name or extension",
-		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			session, err := utils.GetSession()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			err = utils.SearchFiles(session.Username, session.Password, args[0])
-			if err != nil {
-				log.Fatal(err)
-			}
-		},
-	}
-
-	// Register commands
-	rootCmd.AddCommand(setupCmd, connectCmd, disconnectCmd, uploadCmd, deleteCmd, purgeCmd, listCmd, searchCmd)
+	rootCmd.AddCommand(setupCmd, connectCmd, disconnectCmd, uploadCmd, downloadCmd, deleteCmd, listCmd, searchCmd, purgeCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
