@@ -16,10 +16,11 @@ var (
 
 func main() {
 	var rootCmd = &cobra.Command{
-		Use:   "nexus",
+		Use:   "Nexus-cli",
 		Short: "Nexus CLI: A stateless, encrypted git-based vault",
 		Long: `Nexus is a secure, git-backed vault that uses client-side encryption.
-It supports both a persistent session (connect) or a stateless mode (-u flag).`,
+It supports both a persistent session (connect) or a stateless mode (-u flag).
+Use 'nexus-cli help [command]' to view alias options for each command.`,
 	}
 
 	// Persistent flag allows -u to be used across all subcommands
@@ -78,9 +79,10 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- CONNECT ---
 	var connectCmd = &cobra.Command{
-		Use:   "connect [username]",
-		Short: "Login and create a local session (caching the index)",
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "connect [username]",
+		Aliases: []string{"conn", "login", "auth", "signin", "con", "cn"},
+		Short:   "Login and create a local session (caching the index)",
+		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			target := username
 			if len(args) > 0 {
@@ -101,9 +103,10 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- UPLOAD ---
 	var uploadCmd = &cobra.Command{
-		Use:   "upload [local-path] [vault-path]",
-		Short: "Upload a file to the vault",
-		Args:  cobra.ExactArgs(2),
+		Use:     "upload [local-path] [vault-path]",
+		Aliases: []string{"up", "u", "add"}, // Multiple aliases allowed
+		Short:   "Upload a file to the vault",
+		Args:    cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			// 1. Check if the config file exists BEFORE starting
 			_, err := os.Stat("nexus.conf")
@@ -129,9 +132,10 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- DOWNLOAD ---
 	var downloadCmd = &cobra.Command{
-		Use:   "download [vault-path] [local-path]",
-		Short: "Download a file from the vault",
-		Args:  cobra.ExactArgs(2),
+		Use:     "download [vault-path] [local-path]",
+		Aliases: []string{"down", "d", "get"},
+		Short:   "Download a file from the vault",
+		Args:    cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			session, err := getEffectiveSession()
 			if err != nil {
@@ -148,9 +152,10 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- DELETE ---
 	var deleteCmd = &cobra.Command{
-		Use:   "delete [vault-path]",
-		Short: "Delete a file or folder (recursive)",
-		Args:  cobra.ExactArgs(1),
+		Use:     "delete [vault-path]",
+		Aliases: []string{"del", "rm", "remove"},
+		Short:   "Delete a file or folder (recursive)",
+		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			_, err := os.Stat("nexus.conf")
 			isPersistent := err == nil
@@ -192,9 +197,10 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- SEARCH ---
 	var searchCmd = &cobra.Command{
-		Use:   "search [query]",
-		Short: "Search the vault index",
-		Args:  cobra.ExactArgs(1),
+		Use:     "search [query]",
+		Aliases: []string{"s"},
+		Short:   "Search the vault index",
+		Args:    cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			session, err := getEffectiveSession()
 			if err != nil {
@@ -241,8 +247,9 @@ It supports both a persistent session (connect) or a stateless mode (-u flag).`,
 
 	// --- DISCONNECT ---
 	var disconnectCmd = &cobra.Command{
-		Use:   "disconnect",
-		Short: "Remove local session cache",
+		Use:     "disconnect",
+		Aliases: []string{"disc", "logout", "signout", "logoff", "exit", "dc"},
+		Short:   "Remove local session cache",
 		Run: func(cmd *cobra.Command, args []string) {
 			utils.Disconnect()
 			fmt.Println("✔ Logged out.")
