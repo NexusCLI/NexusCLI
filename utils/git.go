@@ -64,7 +64,7 @@ func PushFiles(repoURL string, rawPrivateKey []byte, files map[string][]byte, co
 	}
 
 	commit, _ := w.Commit(commitMsg, &git.CommitOptions{
-		Author: &object.Signature{Name: "NexusCLI", Email: "Auchrio@proton.me", When: time.Now()},
+		Author: &object.Signature{Name: "Zephyrus", Email: "Auchrio@proton.me", When: time.Now()},
 	})
 
 	return r.Push(&git.PushOptions{

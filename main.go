@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"nexus-cli/utils"
 	"os"
 	"path/filepath"
 	"strings"
+	"zep/utils"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -21,8 +21,8 @@ var (
 
 func main() {
 	var rootCmd = &cobra.Command{
-		Use:   "Nexus-cli",
-		Short: "Nexus CLI",
+		Use:   "zep",
+		Short: "Zephyrus CLI",
 		// This bit ensures the root command doesn't just print help
 		// if we want to trigger the REPL instead.
 		Run: func(cmd *cobra.Command, args []string) {
@@ -297,7 +297,7 @@ func main() {
 			fmt.Println("Share this string to allow others to download the file:")
 			fmt.Println(shareString)
 			fmt.Println("\nRecipient can download with:")
-			fmt.Printf("  nexus-cli download _ output.file --shared \"%s\"\n", shareString)
+			fmt.Printf("  zep download _ output.file --shared \"%s\"\n", shareString)
 		},
 	}
 
@@ -333,7 +333,7 @@ func runInteractiveShell(rootCmd *cobra.Command) {
 	resetTerminal()
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("=== Nexus Interactive Shell ===")
+	fmt.Println("=== Zephyrus Interactive Shell ===")
 
 	var cachedSession *utils.Session
 	var err error
@@ -377,7 +377,7 @@ func runInteractiveShell(rootCmd *cobra.Command) {
 	fmt.Println("Type 'help' for commands or 'exit' to quit.")
 
 	for {
-		fmt.Print("nexus> ")
+		fmt.Print("zep> ")
 		os.Stdout.Sync()
 
 		input, err := reader.ReadString('\n')

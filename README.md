@@ -1,14 +1,14 @@
-⚠️ **For detailed technical architecture, cryptographic design, and security analysis, please refer to the [Whitepaper](https://github.com/NexusCLI/NexusCLI/wiki/WHITEPAPER).**
+⚠️ **For detailed technical architecture, cryptographic design, and security analysis, please refer to the [Whitepaper](https://github.com/zephyrus-development/zephyrus-cli/wiki/WHITEPAPER).**
 
 ---
 
-# Nexus CLI
+# Zephyrus CLI
 
 A secure, encrypted file vault backed by GitHub. Store your sensitive files with confidence using end-to-end encryption and git-based version control.
 
-## What is Nexus CLI?
+## What is Zephyrus CLI?
 
-Nexus CLI is a command-line tool that transforms your GitHub repository into a private, encrypted file vault. Your files are encrypted locally before being uploaded, ensuring that even if your GitHub repository is compromised, your data remains secure.
+Zephyrus CLI is a command-line tool that transforms your GitHub repository into a private, encrypted file vault. Your files are encrypted locally before being uploaded, ensuring that even if your GitHub repository is compromised, your data remains secure.
 
 **Key Features:**
 - 🔐 **End-to-End Encryption**: Files are encrypted with AES-256-GCM before leaving your computer
@@ -24,41 +24,41 @@ Nexus CLI is a command-line tool that transforms your GitHub repository into a p
 
 ## Prerequisites
 
-Before you can use Nexus CLI, you'll need:
+Before you can use Zephyrus CLI, you'll need:
 
 1. **A GitHub Account**
 2. **A Private Key for GitHub**: SSH key for authentication (e.g., `id_ed25519`)
-3. **An Empty GitHub Repository**: Create a repository named `.nexus` in your GitHub account
-4. **Nexus CLI Binary**: Download from [releases](https://github.com/NexusCLI/NexusCLI/releases)
+3. **An Empty GitHub Repository**: Create a repository named `.zephyrus` in your GitHub account
+4. **Zephyrus CLI Binary**: Download from [releases](https://github.com/zephyrus-development/zephyrus-cli/releases)
 
 ## Installation
 
 ### Download Binary
 
-1. Visit the [Nexus CLI Releases Page](https://github.com/NexusCLI/NexusCLI/releases)
+1. Visit the [Zephyrus CLI Releases Page](https://github.com/zephyrus-development/zephyrus-cli/releases)
 2. Download the latest release for your operating system:
-   - **Windows**: `nexus-cli.exe`
+   - **Windows**: `zep.exe`
    - **macOS**: Please download and compile from source.
    - **Linux**: Please download and compile from source, linux release coming soon.
 3. Make the binary executable (macOS/Linux):
    ```bash
-   chmod +x nexus-cli-*
+   chmod +x zep-*
    ```
 4. Optionally, add to your PATH for system-wide access
 
 ### Setup Your Vault
 
-Before you can use Nexus ClI, you must create a [deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys#deploy-keys) on the `.nexus` repository you have created, to do this you must generate a ssh keypair through either the `ssh-keygen` command (most secure) or through a website such as [this one](https://www.wpoven.com/tools/create-ssh-key), then add the public key to the deploy key settings tab of your `.nexus` github repository.
+Before you can use Zephyrus ClI, you must create a [deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys#deploy-keys) on the `.zephyrus` repository you have created, to do this you must generate a ssh keypair through either the `ssh-keygen` command (most secure) or through a website such as [this one](https://www.wpoven.com/tools/create-ssh-key), then add the public key to the deploy key settings tab of your `.zephyrus` github repository.
 
-Then to start using Nexus CLI, initialize your vault:
+Then to start using Zephyrus CLI, initialize your vault:
 
 ```bash
-./nexus-cli setup <github-username> <path-to-ssh--private-key>
+./zep setup <github-username> <path-to-ssh--private-key>
 ```
 
 **Example:**
 ```bash
-./nexus-cli setup Auchrio ./private_key.txt
+./zep setup Auchrio ./private_key.txt
 ```
 
 When prompted:
@@ -67,7 +67,7 @@ When prompted:
 - Create a vault password (you'll use this to encrypt your GitHub SSH key)
 
 **What happens during setup:**
-1. Verifies your `.nexus` repository exists on GitHub
+1. Verifies your `.zephyrus` repository exists on GitHub
 2. Reads your SSH private key from disk
 3. Encrypts the key with your vault password
 4. Pushes the encrypted key to `.config/key` in your vault repository
@@ -80,27 +80,27 @@ When prompted:
 
 Start the interactive shell:
 ```bash
-./nexus-cli
+./zep
 ```
 
 You'll be prompted to enter your username and password. Once authenticated, you can run commands without re-entering credentials:
 
 ```
-=== Nexus Interactive Shell ===
+=== Zephyrus Interactive Shell ===
 Username: myusername
 Password: ••••••••••
 ✔ Welcome, myusername. Session Active.
 Type 'help' for commands or 'exit' to quit.
 
-nexus> upload ./document.pdf documents/report.pdf
+zep> upload ./document.pdf documents/report.pdf
 ✔ Upload successful.
 
-nexus> ls documents
+zep> ls documents
 NAME          TYPE    STORAGE ID
 ----          ----    ----------
 report.pdf    [FILE]  a3f2e1c9d4b6f8e2
 
-nexus> exit
+zep> exit
 ```
 
 ### Command Line Mode
@@ -109,13 +109,13 @@ Run commands directly without entering the shell:
 
 ```bash
 # Upload a file
-./nexus-cli upload ./document.pdf documents/report.pdf
+./zep upload ./document.pdf documents/report.pdf
 
 # List files
-./nexus-cli ls documents
+./zep ls documents
 
 # Download a file
-./nexus-cli download documents/report.pdf ./report.pdf
+./zep download documents/report.pdf ./report.pdf
 
 # Exit
 ```
@@ -125,7 +125,7 @@ Run commands directly without entering the shell:
 If you haven't run `connect`, you can use any command with the `-u` flag to authenticate on-the-fly:
 
 ```bash
-./nexus-cli upload -u myusername ./document.pdf documents/report.pdf
+./zep upload -u myusername ./document.pdf documents/report.pdf
 ```
 
 You'll be prompted for your vault password. This doesn't create a persistent session.
@@ -134,11 +134,11 @@ You'll be prompted for your vault password. This doesn't create a persistent ses
 
 ### `setup` - Initialize Your Vault
 
-Sets up a new Nexus vault by encrypting and storing your GitHub SSH key.
+Sets up a new Zephyrus vault by encrypting and storing your GitHub SSH key.
 
 **Usage:**
 ```bash
-./nexus-cli setup [username] [key-path]
+./zep setup [username] [key-path]
 ```
 
 **Arguments:**
@@ -152,13 +152,13 @@ Sets up a new Nexus vault by encrypting and storing your GitHub SSH key.
 
 **Example:**
 ```bash
-./nexus-cli setup myusername ~/.ssh/id_ed25519
+./zep setup myusername ~/.ssh/id_ed25519
 # Or interactively:
-./nexus-cli setup
+./zep setup
 ```
 
 **Prerequisites:**
-- Repository named `.nexus` must exist on your GitHub account
+- Repository named `.zephyrus` must exist on your GitHub account
 - SSH key must exist at the specified path
 - SSH key must have access to GitHub
 
@@ -168,11 +168,11 @@ Sets up a new Nexus vault by encrypting and storing your GitHub SSH key.
 
 ### `connect` - Create a Persistent Session
 
-Authenticates and caches your vault index locally in `nexus.conf`. Subsequent commands won't require re-authentication.
+Authenticates and caches your vault index locally in `zephyrus.conf`. Subsequent commands won't require re-authentication.
 
 **Usage:**
 ```bash
-./nexus-cli connect [username]
+./zep connect [username]
 ```
 
 **Aliases:** `conn`, `login`, `auth`, `signin`, `con`, `cn`
@@ -186,20 +186,20 @@ Authenticates and caches your vault index locally in `nexus.conf`. Subsequent co
 
 **Example:**
 ```bash
-./nexus-cli connect myusername
+./zep connect myusername
 # Password: ••••••••••
 # ✔ Connected.
 
-./nexus-cli upload ./file.pdf documents/file.pdf
+./zep upload ./file.pdf documents/file.pdf
 # Uses cached session - no password prompt
 ```
 
 **When to Use:**
 - You're running multiple commands in sequence
 - You want to avoid entering your password repeatedly
-- You're working on a secure machine where storing `nexus.conf` is safe
+- You're working on a secure machine where storing `zephyrus.conf` is safe
 
-**Note**: Creates a file called `nexus.conf` in the current directory containing your cached index.
+**Note**: Creates a file called `zephyrus.conf` in the current directory containing your cached index.
 
 ---
 
@@ -209,7 +209,7 @@ Encrypts and uploads a file from your local filesystem to the vault.
 
 **Usage:**
 ```bash
-./nexus-cli upload <local-path> <vault-path>
+./zep upload <local-path> <vault-path>
 ```
 
 **Aliases:** `up`, `u`, `add`
@@ -227,20 +227,20 @@ Encrypts and uploads a file from your local filesystem to the vault.
 **Examples:**
 ```bash
 # Upload a single file
-./nexus-cli upload ./document.pdf documents/report.pdf
+./zep upload ./document.pdf documents/report.pdf
 
 # Upload to nested folders (creates folders automatically)
-./nexus-cli upload ./archive.zip backups/2024/full_backup.zip
+./zep upload ./archive.zip backups/2024/full_backup.zip
 
 # Update an existing file
-./nexus-cli upload ./updated_report.pdf documents/report.pdf
+./zep upload ./updated_report.pdf documents/report.pdf
 
 # Using stateless mode
-./nexus-cli upload -u myusername ./file.pdf documents/file.pdf
+./zep upload -u myusername ./file.pdf documents/file.pdf
 ```
 
 **Session Behavior:**
-- If you have a persistent session (`nexus.conf`), it updates the local cache
+- If you have a persistent session (`zephyrus.conf`), it updates the local cache
 - If using stateless mode, authentication happens once per command
 - After upload, index is synced to remote repository
 
@@ -254,7 +254,7 @@ Decrypts and downloads a file from the vault to your local filesystem. Supports 
 
 **Usage:**
 ```bash
-./nexus-cli download <vault-path> <local-path> [--shared <share-string>]
+./zep download <vault-path> <local-path> [--shared <share-string>]
 ```
 
 **Aliases:** `down`, `d`, `get`
@@ -276,19 +276,19 @@ Decrypts and downloads a file from the vault to your local filesystem. Supports 
 **Examples:**
 ```bash
 # Download a file from your vault
-./nexus-cli download documents/report.pdf ./report.pdf
+./zep download documents/report.pdf ./report.pdf
 
 # Download from nested folders
-./nexus-cli download backups/2024/full_backup.zip ./backup.zip
+./zep download backups/2024/full_backup.zip ./backup.zip
 
 # Using stateless mode
-./nexus-cli download -u myusername documents/report.pdf ./report.pdf
+./zep download -u myusername documents/report.pdf ./report.pdf
 
 # Download with a different name
-./nexus-cli download documents/report.pdf ./my_report.pdf
+./zep download documents/report.pdf ./my_report.pdf
 
 # Download a shared file
-./nexus-cli download _ ./report.pdf --shared "john:a3f2e1c9:abc123def456..."
+./zep download _ ./report.pdf --shared "john:a3f2e1c9:abc123def456..."
 ```
 
 **Error Handling:**
@@ -305,7 +305,7 @@ Deletes a file or entire folder (with all contents) from the vault.
 
 **Usage:**
 ```bash
-./nexus-cli delete <vault-path>
+./zep delete <vault-path>
 ```
 
 **Aliases:** `del`, `rm`, `remove`
@@ -323,13 +323,13 @@ Deletes a file or entire folder (with all contents) from the vault.
 **Examples:**
 ```bash
 # Delete a single file
-./nexus-cli delete documents/report.pdf
+./zep delete documents/report.pdf
 
 # Delete an entire folder and all contents
-./nexus-cli delete documents/archive
+./zep delete documents/archive
 
 # Using stateless mode
-./nexus-cli delete -u myusername documents/report.pdf
+./zep delete -u myusername documents/report.pdf
 ```
 
 **Behavior:**
@@ -348,7 +348,7 @@ Lists all files and folders in a vault directory with formatted output.
 
 **Usage:**
 ```bash
-./nexus-cli ls [folder]
+./zep ls [folder]
 ```
 
 **Arguments:**
@@ -365,16 +365,16 @@ archive/        [DIR]   -
 **Examples:**
 ```bash
 # List root of vault
-./nexus-cli ls
+./zep ls
 
 # List a specific folder
-./nexus-cli ls documents
+./zep ls documents
 
 # List nested folder
-./nexus-cli ls documents/archive
+./zep ls documents/archive
 
 # Using stateless mode
-./nexus-cli ls -u myusername documents
+./zep ls -u myusername documents
 ```
 
 **Output Details:**
@@ -392,7 +392,7 @@ Searches for files and folders by name or path using case-insensitive substring 
 
 **Usage:**
 ```bash
-./nexus-cli search <query>
+./zep search <query>
 ```
 
 **Aliases:** `s`
@@ -409,7 +409,7 @@ Searches for files and folders by name or path using case-insensitive substring 
 **Examples:**
 ```bash
 # Search for files with "report" in the name
-./nexus-cli search report
+./zep search report
 # Output:
 # VAULT PATH              TYPE    STORAGE ID
 # ----------              ----    ----------
@@ -417,16 +417,16 @@ Searches for files and folders by name or path using case-insensitive substring 
 # archive/2024_report     [DIR]   -
 
 # Search by file type
-./nexus-cli search .pdf
+./zep search .pdf
 
 # Search by year
-./nexus-cli search 2024
+./zep search 2024
 
 # Search by path
-./nexus-cli search documents/invoices
+./zep search documents/invoices
 
 # Using stateless mode
-./nexus-cli search -u myusername "backup"
+./zep search -u myusername "backup"
 ```
 
 **Search Matching:**
@@ -445,7 +445,7 @@ Generates a secure share string that allows others to download a specific file w
 
 **Usage:**
 ```bash
-./nexus-cli share <vault-path>
+./zep share <vault-path>
 ```
 
 **Aliases:** `sh`
@@ -469,16 +469,16 @@ Generates a secure share string that allows others to download a specific file w
 **Examples:**
 ```bash
 # Share a file from your vault
-./nexus-cli share documents/report.pdf
+./zep share documents/report.pdf
 # Output:
 # Share this string to allow others to download the file:
 # john:a3f2e1c9:abc123def456789abc123def456789ab
 #
 # Recipient can download with:
-#   nexus-cli download _ output.file --shared "john:a3f2e1c9:abc123def456789abc123def456789ab"
+#   zep download _ output.file --shared "john:a3f2e1c9:abc123def456789abc123def456789ab"
 
 # Using stateless mode
-./nexus-cli share -u myusername documents/sensitive_file.pdf
+./zep share -u myusername documents/sensitive_file.pdf
 ```
 
 **Security Implications:**
@@ -497,27 +497,27 @@ Generates a secure share string that allows others to download a specific file w
 
 ### `disconnect` - Remove Local Session
 
-Clears the local session cache and removes `nexus.conf`.
+Clears the local session cache and removes `zephyrus.conf`.
 
 **Usage:**
 ```bash
-./nexus-cli disconnect
+./zep disconnect
 ```
 
 **Aliases:** `disc`, `logout`, `signout`, `logoff`, `exit`, `dc`
 
 **What It Does:**
-- Removes `nexus.conf` from the current directory
+- Removes `zephyrus.conf` from the current directory
 - Clears in-memory session cache
 - Returns you to unauthenticated state
 
 **Examples:**
 ```bash
-./nexus-cli disconnect
+./zep disconnect
 # ✔ Logged out.
 
 # All subsequent commands require authentication
-./nexus-cli ls
+./zep ls
 # No active session. Enter GitHub Username: ...
 ```
 
@@ -536,7 +536,7 @@ Completely removes all files and history from the remote vault. **This is irreve
 
 **Usage:**
 ```bash
-./nexus-cli purge
+./zep purge
 ```
 
 **What It Does:**
@@ -548,7 +548,7 @@ Completely removes all files and history from the remote vault. **This is irreve
 
 **Example:**
 ```bash
-./nexus-cli purge
+./zep purge
 # ⚠️  Confirm PURGE? This wipes all remote data and history. (y/N): y
 # ✔ Remote vault has been wiped and local index cleared.
 ```
@@ -573,17 +573,17 @@ Completely removes all files and history from the remote vault. **This is irreve
 Best for multiple operations in one session:
 
 ```bash
-./nexus-cli
+./zep
 # Username: myusername
 # Password: ••••••••••
 # ✔ Welcome, myusername. Session Active.
 
-nexus> upload ./report.pdf documents/2024/Q1.pdf
-nexus> upload ./budget.xlsx documents/2024/budget.xlsx
-nexus> ls documents/2024
-nexus> search Q1
-nexus> download documents/2024/Q1.pdf ./Q1_backup.pdf
-nexus> exit
+zep> upload ./report.pdf documents/2024/Q1.pdf
+zep> upload ./budget.xlsx documents/2024/budget.xlsx
+zep> ls documents/2024
+zep> search Q1
+zep> download documents/2024/Q1.pdf ./Q1_backup.pdf
+zep> exit
 ```
 
 ### Pattern 2: Persistent Session
@@ -591,14 +591,14 @@ nexus> exit
 Best for scripting or multiple commands:
 
 ```bash
-./nexus-cli connect myusername
+./zep connect myusername
 # Password: ••••••••••
 # ✔ Connected.
 
-./nexus-cli upload ./file1.pdf documents/file1.pdf
-./nexus-cli upload ./file2.pdf documents/file2.pdf
-./nexus-cli ls documents
-./nexus-cli disconnect
+./zep upload ./file1.pdf documents/file1.pdf
+./zep upload ./file2.pdf documents/file2.pdf
+./zep ls documents
+./zep disconnect
 ```
 
 ### Pattern 3: One-Off Commands with Stateless Mode
@@ -606,11 +606,11 @@ Best for scripting or multiple commands:
 Best for single commands without persistent session:
 
 ```bash
-./nexus-cli upload -u myusername ./file.pdf documents/file.pdf
+./zep upload -u myusername ./file.pdf documents/file.pdf
 # Password: ••••••••••
 # ✔ Upload successful.
 
-./nexus-cli download -u myusername documents/file.pdf ./file.pdf
+./zep download -u myusername documents/file.pdf ./file.pdf
 # Password: ••••••••••
 # ✔ Download successful.
 ```
@@ -621,10 +621,10 @@ Store credentials securely and run commands programmatically:
 
 ```bash
 # In your automation script
-export NEXUS_USER="myusername"
-export NEXUS_PASS="vaultpassword"  # Handle securely!
+export ZEPHYRUS_USER="myusername"
+export ZEPHYRUS_PASS="vaultpassword"  # Handle securely!
 
-./nexus-cli upload -u $NEXUS_USER backup.zip backups/$(date +%Y-%m-%d).zip
+./zep upload -u $ZEPHYRUS_USER backup.zip backups/$(date +%Y-%m-%d).zip
 ```
 
 ## Security Considerations
@@ -670,13 +670,13 @@ Your files are encrypted **before** leaving your computer. GitHub never sees une
    - Don't store it in plain text
    - Your vault password protects both your SSH key and all file encryption keys
 
-3. **Manage `nexus.conf`**:
-   - Don't commit `nexus.conf` to git
+3. **Manage `zephyrus.conf`**:
+   - Don't commit `zephyrus.conf` to git
    - Delete it after sensitive operations
    - It's not encrypted; treat it like a session token
 
 4. **Repository Access**:
-   - Keep your `.nexus` repository private
+   - Keep your `.zephyrus` repository private
    - Only share SSH access with trusted users
    - Consider using deploy keys for automated access
 
@@ -689,7 +689,7 @@ Your files are encrypted **before** leaving your computer. GitHub never sees une
 6. **Backup Your SSH Key**:
    - Store a secure copy of your GitHub SSH key
    - If lost, you'll need to regenerate it
-   - Update in Nexus vault after key rotation
+   - Update in Zephyrus vault after key rotation
 
 7. **Revoke Access**:
    - To revoke a shared file link, re-upload the file with new content
@@ -706,12 +706,12 @@ Your files are encrypted **before** leaving your computer. GitHub never sees une
 ### "Master key not found"
 
 **Cause**: Vault not initialized or `.config/key` missing from repository
-**Solution**: Run `./nexus-cli setup` to initialize the vault
+**Solution**: Run `./zep setup` to initialize the vault
 
-### "Repository '.nexus' not found"
+### "Repository '.zephyrus' not found"
 
-**Cause**: `.nexus` repository doesn't exist on GitHub
-**Solution**: Create an empty repository named `.nexus` on GitHub
+**Cause**: `.zephyrus` repository doesn't exist on GitHub
+**Solution**: Create an empty repository named `.zephyrus` on GitHub
 
 ### "Failed to clone: repository not found"
 
@@ -748,7 +748,7 @@ Your files are encrypted **before** leaving your computer. GitHub never sees une
 
 **Cause**: Insufficient access to GitHub repository
 **Solution**:
-- Verify you own the `.nexus` repository
+- Verify you own the `.zephyrus` repository
 - Check SSH key permissions: `ls -l ~/.ssh/id_ed25519` (should be 600 or 400)
 - On Windows, ensure OpenSSH has correct permissions
 
@@ -759,7 +759,7 @@ Your files are encrypted **before** leaving your computer. GitHub never sees une
 Your vault is stored in a GitHub repository with this structure:
 
 ```
-.nexus/
+.zephyrus/
 ├── .config/
 │   ├── key        (encrypted SSH key)
 │   └── index      (encrypted vault index)
@@ -803,28 +803,28 @@ This allows each encryption to use a unique salt and nonce, preventing patterns.
 To use a different GitHub account:
 
 ```bash
-./nexus-cli disconnect
-./nexus-cli connect different_username
+./zep disconnect
+./zep connect different_username
 # Password: ••••••••••
 ```
 
-This creates a new session for the different account. Note: You need a separate `.nexus` repository for each account.
+This creates a new session for the different account. Note: You need a separate `.zephyrus` repository for each account.
 
 ### Migrating Vaults
 
 To move your vault to a new GitHub account you can [transfer ownership of the repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository) or you can migrate manually by:
 
-1. Create new `.nexus` repository on new account
-2. `./nexus-cli setup new_username path/to/key`
+1. Create new `.zephyrus` repository on new account
+2. `./zep setup new_username path/to/key`
 3. Download all files from old vault
 4. Upload them to new vault
-5. Delete old `.nexus` repository
+5. Delete old `.zephyrus` repository
 
 Files in the vault are never visible to GitHub or other services.
 
 ## Getting Help
 
-- **GitHub Issues**: Report bugs at [NexusCLI/NexusCLI/issues](https://github.com/NexusCLI/NexusCLI/issues)
+- **GitHub Issues**: Report bugs at [zephyrus-development/zephyrus-cli/issues](https://github.com/zephyrus-development/zephyrus-cli/issues)
 - **Documentation**: See the [docs folder](./docs/) for detailed module documentation
 - **Security Issues**: Email instead of opening public issues
 
@@ -838,11 +838,11 @@ Contributions are welcome! Please:
 
 ## License
 
-Nexus CLI is released under the MIT License. See LICENSE file for details.
+Zephyrus CLI is released under the MIT License. See LICENSE file for details.
 
 ## Disclaimer
 
-Nexus CLI is provided as-is. While we've implemented industry-standard encryption, we recommend:
+Zephyrus CLI is provided as-is. While we've implemented industry-standard encryption, we recommend:
 
 - Testing with non-critical files first
 - Maintaining separate backups of important data

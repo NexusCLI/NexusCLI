@@ -1,6 +1,6 @@
-# Nexus CLI - Module Documentation
+# Zephyrus CLI - Module Documentation
 
-This directory contains technical documentation for all Nexus CLI modules in the `utils` package.
+This directory contains technical documentation for all Zephyrus CLI modules in the `utils` package.
 
 ## Module Reference
 
@@ -19,9 +19,9 @@ This directory contains technical documentation for all Nexus CLI modules in the
 - [share.go](SHARE.md) - File sharing and access tokens
 - [upload.go](UPLOAD.md) - File encryption and uploading
 
-## How to Use Nexus CLI
+## How to Use Zephyrus CLI
 
-For complete usage instructions, visit: https://github.com/NexusCLI/NexusCLI/wiki/How-to-use
+For complete usage instructions, visit: https://github.com/zephyrus-development/zephyrus-cli/wiki/How-to-use
 
 ---
 

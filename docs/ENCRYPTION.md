@@ -2,7 +2,7 @@
 
 ## Package utils
 
-This module provides cryptographic operations for the Nexus CLI, including AES-GCM encryption, PBKDF2 key derivation, and secure random name generation.
+This module provides cryptographic operations for the Zephyrus CLI, including AES-GCM encryption, PBKDF2 key derivation, and secure random name generation.
 
 ### Constants
 

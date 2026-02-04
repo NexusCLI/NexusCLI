@@ -108,7 +108,7 @@ Shared files **cannot be unshared** without changing the file:
 ### Command
 
 ```bash
-./nexus-cli share <vault-path>
+./zep share <vault-path>
 ```
 
 **Alias**: `sh`
@@ -136,7 +136,7 @@ var shareCmd = &cobra.Command{
 
         fmt.Println("Share this string to allow others to download the file:")
         fmt.Println(shareString)
-        fmt.Printf("  nexus-cli download _ output.file --shared \"%s\"\n", shareString)
+        fmt.Printf("  zep download _ output.file --shared \"%s\"\n", shareString)
     },
 }
 ```
@@ -149,7 +149,7 @@ var shareCmd = &cobra.Command{
 
 1. **Generate Share String**
    ```bash
-   ./nexus-cli share documents/report.pdf
+   ./zep share documents/report.pdf
    ```
 
 2. **Get Output**
@@ -158,7 +158,7 @@ var shareCmd = &cobra.Command{
    john:a3f2e1c9:5a7e9c3b1f8d4a2e6b9c1d8e5a7b3c4f
    
    Recipient can download with:
-     nexus-cli download _ output.file --shared "john:a3f2e1c9:5a7e9c3b1f8d4a2e6b9c1d8e5a7b3c4f"
+     zep download _ output.file --shared "john:a3f2e1c9:5a7e9c3b1f8d4a2e6b9c1d8e5a7b3c4f"
    ```
 
 3. **Share Securely**
@@ -171,7 +171,7 @@ var shareCmd = &cobra.Command{
 1. **Receive Share String** (via secure channel)
 2. **Download Shared File**
    ```bash
-   ./nexus-cli download _ report.pdf --shared "john:a3f2e1c9:5a7e9c3b1f8d4a2e6b9c1d8e5a7b3c4f"
+   ./zep download _ report.pdf --shared "john:a3f2e1c9:5a7e9c3b1f8d4a2e6b9c1d8e5a7b3c4f"
    ```
 3. **File is decrypted** using the provided per-file key
 

@@ -1,9 +1,9 @@
-# Nexus CLI - Go Dependencies
-# This file documents the external Go modules required to build and run Nexus CLI
+# Zephyrus CLI - Go Dependencies
+# This file documents the external Go modules required to build and run Zephyrus CLI
 # For Go projects, dependencies are managed via go.mod and go.sum
 
 # Project Module
-nexus-cli (module)
+zep (module)
 
 # Direct Dependencies
 github.com/spf13/cobra v1.10.2           # CLI framework
@@ -45,4 +45,4 @@ gopkg.in/warnings.v0 v0.1.2               # Warning utilities
 
 # Building
 # To build the project:
-#   go build -o nexus-cli .
+#   go build -o zep.exe .

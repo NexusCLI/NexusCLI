@@ -47,7 +47,7 @@ Performs stateless append/update operations to a git repository while preserving
    - Existing files are overwritten with new content
 4. **Stage Files**: Stages all modified files for commit
 5. **Check for Changes**: Verifies that changes exist before committing
-6. **Commit**: Creates a commit with the specified message and NexusCLI author information
+6. **Commit**: Creates a commit with the specified message and Zephyrus author information
 7. **Push**: Pushes the commit to the remote master branch using SSH
 
 **Error Handling:**
@@ -61,7 +61,7 @@ Performs stateless append/update operations to a git repository while preserving
 **Notes:**
 - Uses shallow clone (Depth=1) for performance
 - Ignores SSH host key verification (insecure but necessary for automation)
-- Commits are attributed to "NexusCLI" user
+- Commits are attributed to "Zephyrus" user
 - File paths can include subdirectories (e.g., ".config/index")
 - Existing files on remote are not downloaded; only new/modified files are uploaded
 

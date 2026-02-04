@@ -1,4 +1,4 @@
-module nexus-cli
+module zep
 
 go 1.25.6
 

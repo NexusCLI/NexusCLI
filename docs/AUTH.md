@@ -2,11 +2,11 @@
 
 ## Package utils
 
-This package provides functionalities for user authentication and session management in the Nexus CLI application.
+This package provides functionalities for user authentication and session management in the Zephyrus CLI application.
 
 ### Constants
 
-- **configPath**: The path to the configuration file (`nexus.conf`).
+- **configPath**: The path to the configuration file (`zephyrus.conf`).
 
 ### Variables
 
