@@ -68,8 +68,8 @@ func main() {
 
 			// Interactive guide if no arguments provided
 			if len(args) == 0 {
-				fmt.Println("\n=== Zephyrus Vault Setup Guide ===\n")
-				fmt.Println("Before we begin, please ensure you have completed the following steps:\n")
+				fmt.Println("\n=== Zephyrus Vault Setup Guide ===")
+				fmt.Println("Before we begin, please ensure you have completed the following steps:")
 				fmt.Println("1. ✓ Created a GitHub account (https://github.com)")
 				fmt.Println("2. ✓ Created an EMPTY repository named `.zephyrus` in your GitHub account")
 				fmt.Println("3. ✓ Generated an SSH key pair (run: ssh-keygen -t ed25519)")
@@ -77,7 +77,7 @@ func main() {
 				fmt.Println("   - Go to: https://github.com/YOUR_USERNAME/.zephyrus/settings/keys")
 				fmt.Println("   - Click 'Add deploy key'")
 				fmt.Println("   - Paste your PUBLIC key (id_ed25519.pub) content")
-				fmt.Println("   - Enable 'Allow write access' ✓\n")
+				fmt.Println("   - Enable 'Allow write access' ✓")
 				fmt.Println("Do you have all of this ready? (y/n): ")
 				var ready string
 				fmt.Scanln(&ready)
@@ -150,7 +150,7 @@ func main() {
 				fmt.Println("\n--- Next Steps ---")
 				fmt.Println("1. Run 'zep connect' to create a local session")
 				fmt.Println("2. Run 'zep upload <file> <vault-path>' to upload your first file")
-				fmt.Println("3. Run 'zep help' to see all available commands\n")
+				fmt.Println("3. Run 'zep help' to see all available commands")
 				return
 			}
 
@@ -597,12 +597,12 @@ func main() {
 
 			fmt.Println("\n⚙️  VAULT SETTINGS")
 			fmt.Println("─────────────────────────────────────────")
-			fmt.Printf("Commit Author Name (author-name):       %s\n", session.Settings.CommitAuthorName)
+			fmt.Printf("Commit Author Name (author-name):      	 %s\n", session.Settings.CommitAuthorName)
 			fmt.Printf("Commit Author Email (author-email):     %s\n", session.Settings.CommitAuthorEmail)
 			fmt.Printf("Commit Message (commit-message):        %s\n", session.Settings.CommitMessage)
 			fmt.Printf("File Hash Length (file-hash-length):    %d characters\n", session.Settings.FileHashLength)
 			fmt.Printf("Share Hash Length (share-hash-length):  %d characters\n", session.Settings.ShareHashLength)
-			fmt.Println("─────────────────────────────────────────\n")
+			fmt.Println("─────────────────────────────────────────")
 		},
 	}
 

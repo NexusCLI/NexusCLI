@@ -104,7 +104,7 @@ func FetchSessionStateless(username string, password string) (*Session, error) {
 	var index VaultIndex
 	rawIndex, err := FetchRaw(username, ".config/index")
 	if err != nil {
-		if err != nil && strings.Contains(err.Error(), "404") {
+		if strings.Contains(err.Error(), "404") {
 			index = NewIndex()
 		} else {
 			index = NewIndex() // Fallback for new vaults

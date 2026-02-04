@@ -3,7 +3,7 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"path/filepath"
@@ -29,8 +29,8 @@ func GenerateShareReferenceWithLength(length int) (string, error) {
 	return string(ref), nil
 }
 
-// ShareFile generates a share string with a new 6-char reference and share password
-// File is encrypted with share password and uploaded to /shared/{ref}
+// ShareFile generates a share string with a new 6-char reference
+// The shared file stores only a pointer (storage ID + encrypted file key) instead of a copy
 func ShareFile(vaultPath string, sharePassword string, session *Session) (string, error) {
 	// 1. Find the file entry in the index
 	entry, err := session.Index.FindEntry(vaultPath)
@@ -43,42 +43,38 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 		return "", fmt.Errorf("'%s' is a directory, you can only share individual files", vaultPath)
 	}
 
-	// 3. Fetch the original encrypted file from GitHub
-	encryptedData, err := FetchRaw(session.Username, entry.RealName)
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch file from remote: %w", err)
-	}
-
-	// 4. Decrypt the file with the vault's file key
-	encryptedKey, err := hex.DecodeString(entry.FileKey)
-	if err != nil {
-		return "", fmt.Errorf("invalid file key in index: %w", err)
-	}
-	fileKey, err := Decrypt(encryptedKey, session.Password)
-	if err != nil {
-		return "", fmt.Errorf("failed to decrypt file key: check your password")
-	}
-	decryptedData, err := DecryptWithKey(encryptedData, fileKey)
-	if err != nil {
-		return "", fmt.Errorf("decryption failed: %w", err)
-	}
-
-	// 5. Generate a new reference with configurable length from settings
+	// 3. Generate a new reference with configurable length from settings
 	ref, err := GenerateShareReferenceWithLength(session.Settings.ShareHashLength)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate share reference: %w", err)
 	}
 
-	// 6. Encrypt the file with the share password
-	shareEncrypted, err := Encrypt(decryptedData, sharePassword)
+	// 4. Decrypt the file key with vault password to get raw 32-byte key
+	fileKeyBytes, err := DecryptHexToBytes(entry.FileKey, session.Password)
 	if err != nil {
-		return "", fmt.Errorf("failed to encrypt with share password: %w", err)
+		return "", fmt.Errorf("failed to decrypt file key: %w", err)
 	}
 
-	// 7. Upload to /shared/{ref}
+	// 5. Create a pointer file containing: storage ID and file key (will be encrypted with share password)
+	pointerData := map[string]string{
+		"storageID": entry.RealName,
+		"fileKey":   fmt.Sprintf("%x", fileKeyBytes),
+	}
+	pointerJSON, err := json.Marshal(pointerData)
+	if err != nil {
+		return "", fmt.Errorf("failed to create share pointer: %w", err)
+	}
+
+	// 6. Encrypt the pointer with the share password
+	pointerEncrypted, err := Encrypt(pointerJSON, sharePassword)
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt share pointer: %w", err)
+	}
+
+	// 7. Upload pointer to /shared/{ref}
 	sharedPath := fmt.Sprintf("shared/%s", ref)
 	filesToPush := map[string][]byte{
-		sharedPath: shareEncrypted,
+		sharedPath: pointerEncrypted,
 	}
 
 	err = PushFilesWithAuthor(
@@ -90,7 +86,7 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 		session.Settings.CommitAuthorEmail,
 	)
 	if err != nil {
-		return "", fmt.Errorf("failed to upload shared file: %w", err)
+		return "", fmt.Errorf("failed to upload share pointer: %w", err)
 	}
 
 	// 8. Add entry to shared index

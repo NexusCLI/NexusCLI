@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -82,19 +83,57 @@ func DownloadSharedFile(shareString string, outputPath string) error {
 		fmt.Printf("Downloading shared file from %s (Reference: %s)...\n", username, reference)
 	}
 
-	// 2. Fetch the encrypted file from the /shared/ folder
+	// 2. Fetch the share pointer from the /shared/ folder
 	sharedPath := fmt.Sprintf("shared/%s", reference)
-	encryptedData, err := FetchRaw(username, sharedPath)
+	pointerData, err := FetchRaw(username, sharedPath)
 	if err != nil {
-		return fmt.Errorf("failed to fetch shared file from remote: %w", err)
+		return fmt.Errorf("failed to fetch share pointer from remote: %w", err)
 	}
 
-	// 3. Decrypt with the share password
-	decryptedData, err := Decrypt(encryptedData, sharePassword)
+	// 3. Decrypt the pointer with the share password to get storage ID and file key
+	decryptedPointer, err := Decrypt(pointerData, sharePassword)
 	if err != nil {
 		return fmt.Errorf("decryption failed: invalid share password")
 	}
 
-	// 4. Save to the local output path
+	// 4. Parse the pointer JSON to get storage ID and encrypted file key
+	var pointerMap map[string]string
+	err = json.Unmarshal(decryptedPointer, &pointerMap)
+	if err != nil {
+		return fmt.Errorf("invalid share pointer format: %w", err)
+	}
+
+	storageID, ok := pointerMap["storageID"]
+	if !ok {
+		return fmt.Errorf("share pointer missing storageID")
+	}
+	fileKeyHex, ok := pointerMap["fileKey"]
+	if !ok {
+		return fmt.Errorf("share pointer missing fileKey")
+	}
+
+	// 5. Fetch the actual encrypted file from main storage
+	encryptedFileData, err := FetchRaw(username, storageID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch file from remote: %w", err)
+	}
+
+	// 6. Decrypt the file key (it's encrypted with the share password for this transfer)
+	encryptedKeyBytes, err := hex.DecodeString(fileKeyHex)
+	if err != nil {
+		return fmt.Errorf("invalid file key encoding: %w", err)
+	}
+	fileKey, err := Decrypt(encryptedKeyBytes, sharePassword)
+	if err != nil {
+		return fmt.Errorf("failed to decrypt file key: %w", err)
+	}
+
+	// 7. Decrypt the file content with the file key
+	decryptedData, err := DecryptWithKey(encryptedFileData, fileKey)
+	if err != nil {
+		return fmt.Errorf("file decryption failed: %w", err)
+	}
+
+	// 8. Save to the local output path
 	return os.WriteFile(finalOutputPath, decryptedData, 0644)
 }

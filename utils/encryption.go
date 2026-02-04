@@ -154,3 +154,13 @@ func EncodeKey(key []byte) string {
 func DecodeKey(hexKey string) ([]byte, error) {
 	return hex.DecodeString(hexKey)
 }
+
+// DecryptHexToBytes decodes a hex-encoded encrypted string and decrypts it with password
+// Returns the raw plaintext bytes
+func DecryptHexToBytes(hexEncrypted string, password string) ([]byte, error) {
+	encrypted, err := hex.DecodeString(hexEncrypted)
+	if err != nil {
+		return nil, err
+	}
+	return Decrypt(encrypted, password)
+}
