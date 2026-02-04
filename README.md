@@ -1,4 +1,4 @@
-⚠️ **For detailed technical architecture, cryptographic design, and security analysis, please refer to the [Whitepaper](https://github.com/NexusCLI/NexusCLI/wiki/WHITEPAPER.md).**
+⚠️ **For detailed technical architecture, cryptographic design, and security analysis, please refer to the [Whitepaper](https://github.com/NexusCLI/NexusCLI/wiki/WHITEPAPER).**
 
 ---
 
