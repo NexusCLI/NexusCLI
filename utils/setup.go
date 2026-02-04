@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -70,7 +71,20 @@ func SetupVault(githubUser string, keyFilePath string, password string) error {
 	f.Close()
 	w.Add(".config/key")
 
-	commit, _ := w.Commit("Zephyrus: Setup Complete", &git.CommitOptions{
+	// Fetch and add README from the application source repository
+	resp, err = http.Get("https://raw.githubusercontent.com/zephyrus-development/zephyrus-cli/main/README.md")
+	if err == nil {
+		defer resp.Body.Close()
+		readmeContent, readErr := io.ReadAll(resp.Body)
+		if readErr == nil {
+			f, _ := fs.Create("README.md")
+			f.Write(readmeContent)
+			f.Close()
+			w.Add("README.md")
+		}
+	}
+
+	commit, _ := w.Commit("Zephyrus: Updated Vault", &git.CommitOptions{
 		Author: &object.Signature{Name: "Zephyrus", Email: "Auchrio@proton.me", When: time.Now()},
 	})
 

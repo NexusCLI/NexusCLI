@@ -3,3 +3,4 @@ go.sum
 .config/
 *.conf
 changelog.md
+.key
