@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -59,17 +60,33 @@ func ReadFile(vaultPath string, session *Session) error {
 	return nil
 }
 
-// ReadSharedFile reads a shared file using a share string (username:reference:sharepassword)
+// ReadSharedFile reads a shared file using a share string (username:reference:sharepassword:base64filename)
 func ReadSharedFile(shareString string) error {
-	// 1. Parse the share string
+	// 1. Parse the share string (supports both old 3-part and new 4-part formats)
 	parts := strings.Split(shareString, ":")
-	if len(parts) != 3 {
-		return fmt.Errorf("invalid share string format, expected 'username:reference:sharepassword'")
+	if len(parts) < 3 || len(parts) > 4 {
+		return fmt.Errorf("invalid share string format, expected 'username:reference:sharepassword' or 'username:reference:sharepassword:base64filename'")
 	}
 
 	username := parts[0]
 	reference := parts[1]
 	sharePassword := parts[2]
+	var filename string
+
+	// Decode filename if provided in share string
+	if len(parts) == 4 {
+		decoded, err := base64.StdEncoding.DecodeString(parts[3])
+		if err != nil {
+			return fmt.Errorf("invalid filename encoding in share string: %w", err)
+		}
+		filename = string(decoded)
+	}
+
+	if filename != "" {
+		fmt.Fprintf(os.Stderr, "Reading shared file '%s' from %s...\n", filename, username)
+	} else {
+		fmt.Fprintf(os.Stderr, "Reading shared file from %s (Reference: %s)...\n", username, reference)
+	}
 
 	// 2. Fetch the encrypted file from the /shared/ folder
 	sharedPath := fmt.Sprintf("shared/%s", reference)

@@ -2,9 +2,11 @@ package utils
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"path/filepath"
 	"time"
 )
 
@@ -117,8 +119,10 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 		return "", fmt.Errorf("failed to upload shared index: %w", err)
 	}
 
-	// 10. Generate the share string: username:reference:sharepassword
-	shareString := fmt.Sprintf("%s:%s:%s", session.Username, ref, sharePassword)
+	// 10. Generate the share string: username:reference:sharepassword:base64filename
+	filename := filepath.Base(vaultPath)
+	encodedFilename := base64.StdEncoding.EncodeToString([]byte(filename))
+	shareString := fmt.Sprintf("%s:%s:%s:%s", session.Username, ref, sharePassword, encodedFilename)
 
 	return shareString, nil
 }

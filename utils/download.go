@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -47,19 +48,39 @@ func DownloadFile(vaultPath string, outputPath string, session *Session) error {
 	return os.WriteFile(outputPath, decryptedData, 0644)
 }
 
-// DownloadSharedFile downloads a file using a share string (username:reference:sharepassword)
+// DownloadSharedFile downloads a file using a share string (username:reference:sharepassword:base64filename)
 func DownloadSharedFile(shareString string, outputPath string) error {
-	// 1. Parse the share string
+	// 1. Parse the share string (supports both old 3-part and new 4-part formats)
 	parts := strings.Split(shareString, ":")
-	if len(parts) != 3 {
-		return fmt.Errorf("invalid share string format, expected 'username:reference:sharepassword'")
+	if len(parts) < 3 || len(parts) > 4 {
+		return fmt.Errorf("invalid share string format, expected 'username:reference:sharepassword' or 'username:reference:sharepassword:base64filename'")
 	}
 
 	username := parts[0]
 	reference := parts[1]
 	sharePassword := parts[2]
+	var filename string
 
-	fmt.Printf("Downloading shared file from %s (Reference: %s)...\n", username, reference)
+	// Decode filename if provided in share string
+	if len(parts) == 4 {
+		decoded, err := base64.StdEncoding.DecodeString(parts[3])
+		if err != nil {
+			return fmt.Errorf("invalid filename encoding in share string: %w", err)
+		}
+		filename = string(decoded)
+	}
+
+	// Use provided outputPath, or construct from filename if available
+	finalOutputPath := outputPath
+	if filename != "" && outputPath == "" {
+		finalOutputPath = filename
+	}
+
+	if filename != "" {
+		fmt.Printf("Downloading '%s' from %s (Reference: %s)...\n", filename, username, reference)
+	} else {
+		fmt.Printf("Downloading shared file from %s (Reference: %s)...\n", username, reference)
+	}
 
 	// 2. Fetch the encrypted file from the /shared/ folder
 	sharedPath := fmt.Sprintf("shared/%s", reference)
@@ -75,5 +96,5 @@ func DownloadSharedFile(shareString string, outputPath string) error {
 	}
 
 	// 4. Save to the local output path
-	return os.WriteFile(outputPath, decryptedData, 0644)
+	return os.WriteFile(finalOutputPath, decryptedData, 0644)
 }

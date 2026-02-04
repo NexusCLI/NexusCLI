@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -423,11 +424,16 @@ func main() {
 				session.Save()
 			}
 
+			// Extract filename for display
+			filename := filepath.Base(args[0])
+
 			fmt.Println("\n✔ File shared successfully!")
+			fmt.Printf("Filename: %s\n", filename)
 			fmt.Println("\nShare this string with recipient:")
 			fmt.Println(shareString)
 			fmt.Println("\nRecipient can download with:")
 			fmt.Printf("  zep download _ output.file --shared \"%s\"\n", shareString)
+
 			fmt.Println("\nOr read with:")
 			fmt.Printf("  zep read _ --shared \"%s\"\n", shareString)
 		},
@@ -555,12 +561,15 @@ func main() {
 				return
 			}
 
+			// Encode filename to base64 for share string
+			encodedFilename := base64.StdEncoding.EncodeToString([]byte(entry.Name))
+
 			fmt.Printf("\n📄 SHARED FILE INFO\n")
 			fmt.Printf("Reference:     %s\n", entry.Reference)
 			fmt.Printf("File Name:     %s\n", entry.OriginalPath)
 			fmt.Printf("Shared At:     %s\n", entry.SharedAt.Format("2006-01-02 15:04:05"))
 			fmt.Printf("Password:      %s\n", entry.Password)
-			fmt.Printf("\nShare String:  %s:%s:%s\n\n", session.Username, entry.Reference, entry.Password)
+			fmt.Printf("\nShare String:  %s:%s:%s:%s\n\n", session.Username, entry.Reference, entry.Password, encodedFilename)
 		},
 	}
 
