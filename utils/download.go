@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func DownloadFile(vaultPath string, outputPath string, session *Session) error {
 	// 1. Use your custom FindEntry logic to navigate the nested maps
+	PrintProgressStep(1, 5, "Locating file in vault...")
 	entry, err := session.Index.FindEntry(vaultPath)
 	if err != nil {
 		return fmt.Errorf("could not find file in vault: %w", err)
@@ -20,16 +22,20 @@ func DownloadFile(vaultPath string, outputPath string, session *Session) error {
 	if entry.Type == "folder" {
 		return fmt.Errorf("'%s' is a directory, you can only download individual files", vaultPath)
 	}
+	PrintCompletionLine("File located: " + entry.RealName)
 
 	fmt.Printf("Downloading %s (Storage ID: %s)...\n", vaultPath, entry.RealName)
 
 	// 3. Fetch the encrypted hex-named file from GitHub
+	PrintProgressStep(2, 5, "Fetching encrypted file from GitHub...")
 	encryptedData, err := FetchRaw(session.Username, entry.RealName)
 	if err != nil {
 		return fmt.Errorf("failed to fetch storage file from remote: %w", err)
 	}
+	PrintCompletionLine("File fetched from GitHub")
 
 	// 4. Decrypt the file key from the index
+	PrintProgressStep(3, 5, "Decrypting file key...")
 	encryptedKey, err := hex.DecodeString(entry.FileKey)
 	if err != nil {
 		return fmt.Errorf("invalid file key in index: %w", err)
@@ -38,15 +44,25 @@ func DownloadFile(vaultPath string, outputPath string, session *Session) error {
 	if err != nil {
 		return fmt.Errorf("failed to decrypt file key: check your password")
 	}
+	PrintCompletionLine("File key decrypted")
 
 	// 5. Decrypt the file data with the file key
+	PrintProgressStep(4, 5, "Decrypting file contents...")
+	time.Sleep(time.Millisecond * 100) // Simulate work for visibility
 	decryptedData, err := DecryptWithKey(encryptedData, fileKey)
 	if err != nil {
 		return fmt.Errorf("decryption failed: %w", err)
 	}
+	PrintCompletionLine("File contents decrypted")
 
 	// 6. Save to the local output path
-	return os.WriteFile(outputPath, decryptedData, 0644)
+	PrintProgressStep(5, 5, "Saving file to "+outputPath+"...")
+	err = os.WriteFile(outputPath, decryptedData, 0644)
+	if err != nil {
+		return err
+	}
+	PrintCompletionLine("File saved successfully")
+	return nil
 }
 
 // DownloadSharedFile downloads a file using a share string (username:reference:sharepassword:base64filename)

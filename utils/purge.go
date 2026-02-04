@@ -18,6 +18,7 @@ func PurgeVault(session *Session) error {
 	repoURL := fmt.Sprintf("git@github.com:%s/.zephyrus.git", session.Username)
 
 	// 1. Prepare an entirely new, empty Git environment in memory
+	PrintProgressStep(1, 3, "Initializing purge...")
 	storer := memory.NewStorage()
 	fs := memfs.New()
 
@@ -26,8 +27,10 @@ func PurgeVault(session *Session) error {
 		return fmt.Errorf("failed to load private key: %w", err)
 	}
 	publicKeys.HostKeyCallback = cryptossh.InsecureIgnoreHostKey()
+	PrintCompletionLine("Purge initialized")
 
 	// 2. Initialize a fresh repo and create a "Wipe" commit
+	PrintProgressStep(2, 3, "Creating purge commit...")
 	r, _ := git.Init(storer, fs)
 	w, _ := r.Worktree()
 
@@ -42,8 +45,10 @@ func PurgeVault(session *Session) error {
 	if err != nil {
 		return fmt.Errorf("failed to create purge commit: %w", err)
 	}
+	PrintCompletionLine("Purge commit created")
 
 	// 3. Force push this empty state to GitHub to overwrite everything
+	PrintProgressStep(3, 3, "Force pushing to GitHub (wiping remote vault)...")
 	_, _ = r.CreateRemote(&config.RemoteConfig{Name: "origin", URLs: []string{repoURL}})
 
 	err = r.Push(&git.PushOptions{
@@ -55,6 +60,7 @@ func PurgeVault(session *Session) error {
 	if err != nil {
 		return fmt.Errorf("failed to push purge: %w", err)
 	}
+	PrintCompletionLine("Vault purged successfully")
 
 	// 4. Update the session index in memory to be empty
 	session.Index = NewIndex()

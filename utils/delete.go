@@ -20,6 +20,7 @@ func DeletePath(vaultPath string, session *Session) error {
 	repoURL := fmt.Sprintf("git@github.com:%s/.zephyrus.git", session.Username)
 
 	// 1. Navigate to the target
+	PrintProgressStep(1, 4, "Locating path in vault...")
 	parts := strings.Split(strings.Trim(vaultPath, "/"), "/")
 	currentMap := session.Index
 	var targetName = parts[len(parts)-1]
@@ -37,8 +38,10 @@ func DeletePath(vaultPath string, session *Session) error {
 	if !exists {
 		return fmt.Errorf("path '%s' not found in vault", vaultPath)
 	}
+	PrintCompletionLine("Path located")
 
 	// 2. Identify all storage IDs to be removed
+	PrintProgressStep(2, 4, "Preparing deletion...")
 	var idsToDelete []string
 	if targetEntry.Type == "file" {
 		idsToDelete = append(idsToDelete, targetEntry.RealName)
@@ -57,8 +60,10 @@ func DeletePath(vaultPath string, session *Session) error {
 		collectIDs(targetEntry)
 		fmt.Printf("Preparing to recursively delete folder '%s' (%d files)...\n", vaultPath, len(idsToDelete))
 	}
+	PrintCompletionLine("Deletion prepared")
 
 	// 3. Git Setup
+	PrintProgressStep(3, 4, "Updating vault index...")
 	storer := memory.NewStorage()
 	fs := memfs.New()
 	publicKeys, _ := ssh.NewPublicKeys("git", session.RawKey, "")
@@ -95,6 +100,7 @@ func DeletePath(vaultPath string, session *Session) error {
 	w.Add(".config/index")
 
 	// 7. Commit the changes
+	PrintProgressStep(4, 4, "Uploading to GitHub...")
 	// Ensure you are passing *git.CommitOptions, not just the Signature
 	commit, err := w.Commit(session.Settings.CommitMessage, &git.CommitOptions{
 		Author: &object.Signature{
@@ -114,6 +120,7 @@ func DeletePath(vaultPath string, session *Session) error {
 	if err != nil {
 		return err
 	}
+	PrintCompletionLine("Deletion completed")
 
 	return nil
 }

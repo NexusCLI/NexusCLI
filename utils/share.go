@@ -33,6 +33,7 @@ func GenerateShareReferenceWithLength(length int) (string, error) {
 // The shared file stores only a pointer (storage ID + encrypted file key) instead of a copy
 func ShareFile(vaultPath string, sharePassword string, session *Session) (string, error) {
 	// 1. Find the file entry in the index
+	PrintProgressStep(1, 5, "Locating file in vault...")
 	entry, err := session.Index.FindEntry(vaultPath)
 	if err != nil {
 		return "", fmt.Errorf("could not find file in vault: %w", err)
@@ -42,14 +43,18 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 	if entry.Type == "folder" {
 		return "", fmt.Errorf("'%s' is a directory, you can only share individual files", vaultPath)
 	}
+	PrintCompletionLine("File located")
 
 	// 3. Generate a new reference with configurable length from settings
+	PrintProgressStep(2, 5, "Generating share reference...")
 	ref, err := GenerateShareReferenceWithLength(session.Settings.ShareHashLength)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate share reference: %w", err)
 	}
+	PrintCompletionLine("Share reference generated: " + ref)
 
 	// 4. Decrypt the file key with vault password to get raw 32-byte key
+	PrintProgressStep(3, 5, "Preparing file key...")
 	fileKeyBytes, err := DecryptHexToBytes(entry.FileKey, session.Password)
 	if err != nil {
 		return "", fmt.Errorf("failed to decrypt file key: %w", err)
@@ -66,12 +71,15 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 	}
 
 	// 6. Encrypt the pointer with the share password
+	PrintProgressStep(4, 5, "Encrypting share pointer...")
 	pointerEncrypted, err := Encrypt(pointerJSON, sharePassword)
 	if err != nil {
 		return "", fmt.Errorf("failed to encrypt share pointer: %w", err)
 	}
+	PrintCompletionLine("Share pointer encrypted")
 
 	// 7. Upload pointer to /shared/{ref}
+	PrintProgressStep(5, 5, "Uploading to GitHub...")
 	sharedPath := fmt.Sprintf("shared/%s", ref)
 	filesToPush := map[string][]byte{
 		sharedPath: pointerEncrypted,
@@ -88,6 +96,7 @@ func ShareFile(vaultPath string, sharePassword string, session *Session) (string
 	if err != nil {
 		return "", fmt.Errorf("failed to upload share pointer: %w", err)
 	}
+	PrintCompletionLine("Share pointer uploaded to GitHub")
 
 	// 8. Add entry to shared index
 	if session.SharedIndex == nil {
