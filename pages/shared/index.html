@@ -7,121 +7,100 @@
     <meta property="og:title" content="Shared File via Zephyrus">
     <meta property="og:description" content="View securely shared file">
     <meta property="og:type" content="website">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .shared-container {
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .status-box {
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            min-height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: 100vh;
+        }
+
+        .shared-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .shared-header h1 {
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #7431ff 0%, #9d6eff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .shared-header .subtitle {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+        }
+
+        .shared-status-box {
+            background: rgba(116, 49, 255, 0.05);
+            border: 1px solid rgba(116, 49, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .status-text {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
         }
 
         .status-message {
-            color: #333;
-            font-size: 16px;
+            color: #e0e0e0;
+            font-size: 1.1rem;
             font-weight: 500;
             word-break: break-word;
+            margin-bottom: 15px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
+            height: 6px;
+            background: rgba(116, 49, 255, 0.1);
+            border-radius: 3px;
             overflow: hidden;
-            margin-top: 10px;
         }
 
         .progress-fill {
             height: 100%;
-            background: #667eea;
+            background: linear-gradient(90deg, #7431ff 0%, #9d6eff 100%);
             width: 0%;
             transition: width 0.3s ease;
         }
 
         .button-group {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            gap: 12px;
             justify-content: center;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            flex: 1;
+            max-width: 200px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #7431ff 0%, #9d6eff 100%);
             color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(116, 49, 255, 0.4);
         }
 
         .btn-primary:disabled {
@@ -130,17 +109,24 @@
         }
 
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+            background: rgba(116, 49, 255, 0.2);
+            color: #e0e0e0;
+            border: 1px solid rgba(116, 49, 255, 0.3);
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: #e0e0e0;
+            background: rgba(116, 49, 255, 0.3);
+            border-color: #7431ff;
+        }
+
+        #retryBtn {
+            max-width: none;
+            flex: 1;
         }
 
         .error {
-            color: #d32f2f;
-            background: #ffebee;
+            color: #ff8a80;
+            background: rgba(211, 47, 47, 0.1);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -148,32 +134,33 @@
         }
 
         .success {
-            color: #388e3c;
-            background: #e8f5e9;
+            color: #81c784;
+            background: rgba(76, 175, 80, 0.1);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border-left: 4px solid #388e3c;
+            border-left: 4px solid #4caf50;
         }
 
         .info-box {
-            background: #e3f2fd;
-            color: #1565c0;
+            background: rgba(33, 150, 243, 0.1);
+            color: #64b5f6;
             padding: 15px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 0.85rem;
             margin-top: 20px;
-            line-height: 1.5;
+            line-height: 1.6;
+            border-left: 4px solid #2196f3;
         }
 
         .spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid #7431ff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -183,32 +170,32 @@
 
         .file-name {
             font-family: 'Courier New', monospace;
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin: 10px 0;
+            background: rgba(116, 49, 255, 0.1);
+            color: #9d6eff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 12px 0;
             word-break: break-all;
+            border: 1px solid rgba(116, 49, 255, 0.2);
         }
 
         .hidden {
             display: none;
         }
-
-
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="shared-container">
+        <header class="shared-header">
             <div class="logo">🔐</div>
-            <h1>Zephyrus Secure Sharing</h1>
+            <h1><a href="../" style="text-decoration: none; color: inherit;">Zephyrus Secure Sharing</a></h1>
             <p class="subtitle">Decrypting your shared file...</p>
-        </div>
+        </header>
 
         <div id="errorBox" class="error hidden"></div>
         <div id="successBox" class="success hidden"></div>
 
-        <div class="status-box">
+        <div class="shared-status-box">
             <div class="status-text">Status</div>
             <div class="status-message" id="statusMessage">
                 <div class="spinner"></div> Preparing...
@@ -548,5 +535,10 @@
         // Start the process
         window.addEventListener('load', main);
     </script>
+
+    <footer>
+        <p>Made with ❤️ for the privacy-conscious community</p>
+        <p>© 2026 Zephyrus CLI. MIT License.</p>
+    </footer>
 </body>
 </html>

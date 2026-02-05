@@ -1,0 +1,399 @@
+/* === Global Styles === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    color: #e0e0e0;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* === Header === */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 40px 20px 20px;
+}
+
+.logo {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #7431ff 0%, #9d6eff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: #a0a0a0;
+}
+
+/* === Form Elements === */
+.auth-section {
+    background: rgba(116, 49, 255, 0.05);
+    border: 1px solid rgba(116, 49, 255, 0.2);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid rgba(116, 49, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #7431ff;
+    background: rgba(116, 49, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(116, 49, 255, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+    font-family: 'Courier New', monospace;
+}
+
+/* === Buttons === */
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #7431ff 0%, #9d6eff 100%);
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(116, 49, 255, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: rgba(116, 49, 255, 0.2);
+    color: #e0e0e0;
+    border: 1px solid rgba(116, 49, 255, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(116, 49, 255, 0.3);
+    border-color: #7431ff;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    width: auto;
+}
+
+.btn-download {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.btn-download:hover {
+    background: rgba(76, 175, 80, 0.3);
+    border-color: #4caf50;
+}
+
+/* === Status Boxes === */
+.status-box {
+    background: rgba(116, 49, 255, 0.05);
+    border-left: 4px solid #7431ff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.status-text {
+    flex: 1;
+}
+
+.error {
+    background: rgba(211, 47, 47, 0.1);
+    border-left-color: #d32f2f;
+    color: #ff8a80;
+}
+
+.success {
+    background: rgba(76, 175, 80, 0.1);
+    border-left-color: #4caf50;
+    color: #81c784;
+}
+
+.info {
+    background: rgba(33, 150, 243, 0.1);
+    border-left-color: #2196f3;
+    color: #64b5f6;
+}
+
+/* === Progress Bar === */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(116, 49, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7431ff 0%, #9d6eff 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* === File Browser === */
+.file-browser {
+    background: rgba(116, 49, 255, 0.05);
+    border: 1px solid rgba(116, 49, 255, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    color: #7431ff;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.breadcrumb-item:hover {
+    background: rgba(116, 49, 255, 0.2);
+}
+
+.breadcrumb-separator {
+    color: #606060;
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(116, 49, 255, 0.08);
+    border: 1px solid rgba(116, 49, 255, 0.15);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-item:hover {
+    background: rgba(116, 49, 255, 0.15);
+    border-color: rgba(116, 49, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    flex-shrink: 0;
+    width: 30px;
+    text-align: center;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.file-path {
+    font-size: 0.85rem;
+    color: #a0a0a0;
+    font-family: 'Courier New', monospace;
+}
+
+.file-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 15px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #a0a0a0;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+/* === Spinner === */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top: 2px solid #7431ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === Utility Classes === */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #a0a0a0;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    header {
+        padding: 30px 20px 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .auth-section {
+        padding: 20px;
+    }
+
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .file-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .file-actions {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .btn-small {
+        flex: 1;
+    }
+
+    .breadcrumb {
+        font-size: 0.85rem;
+    }
+}
+
+/* === Footer === */
+footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(116, 49, 255, 0.2);
+    color: #808080;
+    font-size: 0.95rem;
+}
+
+footer p {
+    margin: 8px 0;
+}

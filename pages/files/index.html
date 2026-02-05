@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zephyrus - Secure File Vault Access</title>
+    <meta property="og:title" content="Zephyrus Secure File Vault">
+    <meta property="og:description" content="Access your encrypted file vault via secure browser interface">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🔐</div>
+            <h1><a href="../" style="text-decoration: none; color: inherit;">Zephyrus Vault Access</a></h1>
+            <p class="tagline" id="statusTagline">Securely browse and download your encrypted files</p>
+        </header>
+
+        <!-- Authentication Section -->
+        <div id="authSection" class="auth-section">
+            <h2 style="margin-bottom: 25px; color: #7431ff;">Unlock Your Vault</h2>
+            
+            <div class="form-group">
+                <label for="usernameInput">GitHub Username</label>
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="your-github-username"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="passwordInput">Vault Password</label>
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="Enter your vault password"
+                    autocomplete="off"
+                >
+            </div>
+
+            <button id="authButton" class="btn-primary">🔓 Unlock Vault</button>
+
+            <div style="margin-top: 25px; padding: 15px; background: rgba(33, 150, 243, 0.1); border-left: 4px solid #2196f3; border-radius: 8px; color: #64b5f6; font-size: 0.9rem; line-height: 1.6;">
+                <strong>🔒 Security Notice:</strong><br>
+                Your password is used only in your browser to decrypt the file index. It is <strong>never sent</strong> to any server. File downloads are encrypted end-to-end.
+            </div>
+        </div>
+
+        <!-- File Browser Section -->
+        <div id="browserSection" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0px;">
+                <div>
+                    <h2 style="color: #7431ff; margin-bottom: 8px;">Vault Contents</h2>
+                    <div id="breadcrumb" class="breadcrumb"></div>
+                </div>
+                <button class="btn-secondary btn-small" onclick="fileBrowser.logout()">🚪 Logout</button>
+            </div>
+
+            <div class="file-browser">
+                <div id="fileList" class="file-list"></div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background: rgba(76, 175, 80, 0.1); border-left: 4px solid #4caf50; border-radius: 8px; color: #81c784; font-size: 0.9rem; line-height: 1.6;">
+                <strong>💡 Tips:</strong><br>
+                • Click on folders to navigate into them<br>
+                • Click "Download" to save encrypted files to your device<br>
+                • All operations are performed locally in your browser
+            </div>
+        </div>
+
+        <footer>
+            <p>Made with ❤️ for the privacy-conscious community</p>
+            <p>© 2026 Zephyrus CLI. MIT License.</p>
+        </footer>
+    </div>
+
+    <!-- Load crypto utilities first, then application logic -->
+    <script src="../js/crypto.js"></script>
+    <script src="../js/files.js"></script>
+</body>
+</html>
